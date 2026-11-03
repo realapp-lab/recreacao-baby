@@ -137,7 +137,7 @@ button:disabled{opacity:.6;cursor:wait}
       <button class="ghost w" id="newdir" type="button">🏫 Criar conta da direção</button>
       <button class="ghost w" id="esq" type="button">Esqueci a senha (direção)</button>
     </div>
-    <button class="pri inst hide" type="button">📲 Instalar o app</button>
+    <button class="pri inst" type="button" style="width:100%;max-width:450px">📲 Instalar o app</button>
     <p class="sm">Recreação Baby • Educação Infantil desde 2015</p>
   </div>
 </section>
@@ -551,8 +551,17 @@ $("#pg").onchange=e=>{if(e.target.id==="bs"){selAl=e.target.value;draw()}};
 <script>
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 let ev;const ib=f=>document.querySelectorAll(".inst").forEach(f);
-window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();ev=e;ib(b=>b.classList.remove("hide"))});
-ib(b=>b.onclick=async()=>{if(!ev)return;ev.prompt();await ev.userChoice;ev=null;ib(x=>x.classList.add("hide"))});
+const jaApp=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();ev=e;if(!jaApp())ib(b=>b.classList.remove("hide"))});
+if(jaApp())ib(b=>b.classList.add("hide"));
+ib(b=>b.onclick=async()=>{
+  if(ev){ev.prompt();try{await ev.userChoice}catch(e){}ev=null;ib(x=>x.classList.add("hide"));return}
+  dlg(ios
+    ?'<h2>📲 Instalar o app</h2><p class="sm">No iPhone/iPad, abra este endereço no <b>Safari</b>, toque em <b>Compartilhar</b> (quadrado com seta) e escolha <b>Adicionar à Tela de Início</b>.</p>'
+    :'<h2>📲 Instalar o app</h2><p class="sm">No <b>Chrome</b>, toque no menu <b>⋮</b> (canto superior direito) e escolha <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.<br><br>Se a opção não aparecer, abra o endereço direto no Chrome (e não dentro do WhatsApp ou Instagram).</p>',
+    ()=>{},"Entendi");
+});
 window.addEventListener("appinstalled",()=>ib(b=>b.classList.add("hide")));
 </script>
 </body>
